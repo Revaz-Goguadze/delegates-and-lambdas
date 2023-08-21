@@ -29,13 +29,27 @@ namespace Delegates
         /// <exception cref="ArgumentNullException">Throw when <paramref name="formula"/> is null.</exception>        
         public static IEnumerable<T> GenerateProgression<T>(T first, Func<T, T>? formula, int count)
         {
-            //TODO: Add validation logic here.
+            if (formula == null)
+            {
+                throw new ArgumentNullException(nameof(formula), "Formula function cannot be null.");
+            }
+            if (count <= 0)
+            {
+                throw new ArgumentException("Count must be a positive integer.", nameof(count));
+            }
 
+            // ReSharper disable once HeapView.ObjectAllocation
             return GeneratorCore();
 
             IEnumerable<T> GeneratorCore()
             {
-                throw new NotImplementedException();
+                T current = first;
+
+                for (int i = 0; i < count; i++)
+                {
+                    yield return current;
+                    current = formula(current);
+                }
             }
         }
 
@@ -60,13 +74,27 @@ namespace Delegates
         /// <exception cref="ArgumentNullException">Throw when <paramref name="finished"/> is null.</exception>        
         public static IEnumerable<T> GenerateProgression<T>(T first, Func<T, T>? formula, Predicate<T>? finished)
         {
-            //TODO: Add validation logic here.
+            if (formula == null)
+            {
+                throw new ArgumentNullException(nameof(formula), "Formula function cannot be null.");
+            }
+            if (finished == null)
+            {
+                throw new ArgumentNullException(nameof(finished), "Finished predicate cannot be null.");
+            }
 
+            // ReSharper disable once HeapView.ObjectAllocation
             return GeneratorCore();
 
             IEnumerable<T> GeneratorCore()
             {
-                throw new NotImplementedException();
+                T current = first;
+
+                while (!finished(current))
+                {
+                    yield return current;
+                    current = formula(current);
+                }
             }
         }
 
@@ -90,7 +118,23 @@ namespace Delegates
         /// <exception cref="ArgumentNullException">Throw when <paramref name="formula"/> is null.</exception>        
         public static T GetElement<T>(T first, Func<T, T>? formula, int number)
         {
-            throw new NotImplementedException();
+            if (formula == null)
+            {
+                throw new ArgumentNullException(nameof(formula), "Formula function cannot be null.");
+            }
+            if (number <= 0)
+            {
+                throw new ArgumentException("Number must be a positive integer.", nameof(number));
+            }
+
+            T current = first;
+
+            for (int i = 1; i < number; i++)
+            {
+                current = formula(current);
+            }
+
+            return current;
         }
 
         /// <summary>
@@ -115,7 +159,27 @@ namespace Delegates
         /// <exception cref="ArgumentOutOfRangeException">Throw when <paramref name="count"/> is less than or equal to 0.</exception>
         public static T Calculate<T>(T first, Func<T, T>? formula, Func<T, T, T>? operation, int count)
         {
-            throw new NotImplementedException();
+            if (formula == null)
+            {
+                throw new ArgumentNullException(nameof(formula), "Formula function cannot be null.");
+            }
+            if (operation == null)
+            {
+                throw new ArgumentNullException(nameof(operation), "Operation function cannot be null.");
+            }
+            if (count <= 0)
+            {
+                throw new ArgumentException("Count must be a positive integer.", nameof(count));
+            }
+
+            T value = first;
+
+            for (int i = 1; i <= count; i++)
+            {
+                value = operation(value, formula(value));
+            }
+
+            return value;
         }
 
         /// <summary>
@@ -133,13 +197,34 @@ namespace Delegates
         /// <exception cref="ArgumentNullException">Throw when <paramref name="formula"/> is null.</exception>
         public static IEnumerable<T> GenerateSequence<T>(T first, T second, Func<T, T, T>? formula, int count)
         {
-            //TODO: Add validation logic here.
+            if (formula == null)
+            {
+                throw new ArgumentNullException(nameof(formula), "Formula function cannot be null.");
+            }
+            if (count <= 0)
+            {
+                throw new ArgumentException("Count must be a positive integer.", nameof(count));
+            }
 
+            // ReSharper disable once HeapView.ObjectAllocation
             return GeneratorCore();
 
             IEnumerable<T> GeneratorCore()
             {
-                throw new NotImplementedException();
+                T current = first;
+                T prev = second;
+
+                yield return current; // Yield the first element
+                yield return prev; // Yield the second element
+
+                for (int i = 2; i < count; i++)
+                {
+                    T next = formula(current, prev);
+                    yield return next;
+
+                    prev = current;
+                    current = next;
+                }
             }
         }
 
@@ -164,7 +249,22 @@ namespace Delegates
         /// </example>
         public static Predicate<T> CombinePredicates<T>(params Predicate<T>[]? predicates)
         {
-            throw new NotImplementedException();
+            if (predicates == null)
+            {
+                throw new ArgumentNullException(nameof(predicates), "Predicates cannot be null.");
+            }
+
+            return item =>
+            {
+                foreach (Predicate<T> predicate in predicates)
+                {
+                    if (!predicate(item))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            };
         }
         
         /// <summary>
@@ -179,7 +279,13 @@ namespace Delegates
         /// <exception cref="ArgumentNullException">Thrown when comparer is null.</exception>
         public static T FindMax<T>(T lhs, T rhs, Comparison<T>? comparer)
         {
-            throw new NotImplementedException();
+            // Validation logic
+            if (comparer == null)
+            {
+                throw new ArgumentNullException(nameof(comparer), "Comparer cannot be null.");
+            }
+
+            return comparer(lhs, rhs) >= 0 ? lhs : rhs;
         }
     }
 }
